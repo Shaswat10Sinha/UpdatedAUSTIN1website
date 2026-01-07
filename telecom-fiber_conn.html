@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiber Connectivity | Austin1.ai</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#020617', 
+                            primary: '#0891b2', 
+                            accent: '#2563eb',
+                        }
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Modern Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #0891b2; }
+
+        /* Navigation */
+        .glass-nav {
+            background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* --- 3D FLIP CARD STYLES --- */
+        .card-container {
+            perspective: 1200px;
+            height: 420px; 
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+        }
+
+        .card-container.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        /* FRONT & BACK Shared */
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* FRONT DESIGN */
+        .card-front {
+            background: #0f172a; 
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            padding: 0; /* Full Bleed Image */
+            text-align: center;
+        }
+
+        .card-container:hover .card-front {
+            border-color: rgba(34, 211, 238, 0.5); 
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.15);
+        }
+
+        /* Image Half */
+        .card-image-wrap {
+            height: 55%;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-image-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s ease;
+            filter: grayscale(100%);
+        }
+
+        .card-container:hover .card-image-wrap img {
+            transform: scale(1.1);
+            filter: grayscale(0%);
+        }
+
+        .card-image-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 0%, #0f172a 100%);
+        }
+
+        /* Content Half */
+        .card-front-content {
+            height: 45%;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            position: relative;
+            width: 100%;
+            align-items: center;
+        }
+
+        .card-bar {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 4px;
+            background: #334155;
+            border-radius: 2px;
+            transition: all 0.4s ease;
+        }
+
+        .card-container:hover .card-bar {
+            background: #22d3ee;
+            width: 80%;
+            box-shadow: 0 0 10px #22d3ee;
+        }
+
+        /* BACK DESIGN */
+        .card-back {
+            background: #1e293b; 
+            transform: rotateY(180deg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2.5rem;
+            text-align: left;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+        }
+
+        .card-back::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: #22d3ee;
+            box-shadow: 0 0 10px #22d3ee;
+        }
+
+        .card-icon-back {
+            width: 50px;
+            height: 50px;
+            background: rgba(34, 211, 238, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #22d3ee;
+            border: 1px solid rgba(34, 211, 238, 0.2);
+            margin-bottom: 1.5rem;
+        }
+
+    </style>
+</head>
+<body class="font-sans text-slate-600 antialiased bg-slate-50 selection:bg-cyan-500 selection:text-white">
+
+    <header class="fixed w-full top-0 z-50 glass-nav transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-24">
+                <a href="index.html" class="flex-shrink-0 flex items-center gap-2 cursor-pointer group">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:shadow-cyan-500/50 transition-all">
+                        A
+                    </div>
+                    <span class="font-display font-bold text-2xl tracking-tighter text-white">austin1<span class="text-cyan-400">.ai</span></span>
+                </a>
+
+                <nav class="hidden md:flex space-x-10 items-center">
+                    <a href="index.html" class="text-sm font-medium text-slate-300 hover:text-white transition-colors uppercase tracking-widest">Home</a>
+                    <a href="index.html#solutions" class="text-sm font-medium text-white transition-colors uppercase tracking-widest border-b border-cyan-500">Solutions</a>
+                    <a href="index.html#platform" class="text-sm font-medium text-slate-300 hover:text-white transition-colors uppercase tracking-widest">Platform</a>
+                    <a href="index.html#resources" class="text-sm font-medium text-slate-300 hover:text-white transition-colors uppercase tracking-widest">Insights</a>
+                    <a href="about.html" class="text-sm font-medium text-slate-300 hover:text-white transition-colors uppercase tracking-widest">Company</a>
+                </nav>
+
+                <div class="flex items-center gap-4">
+                    <a href="index.html#contact" class="hidden md:inline-flex items-center justify-center px-6 py-2.5 border border-white/10 text-sm font-bold uppercase tracking-wider rounded-sm text-white hover:bg-white hover:text-slate-900 transition-all duration-300">
+                        Contact Us
+                    </a>
+                    <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="relative h-[60vh] flex items-center bg-slate-900 overflow-hidden border-b border-slate-800">
+        <div class="absolute inset-0 z-0">
+            <video autoplay loop muted playsinline class="w-full h-full object-cover opacity-30">
+                <source src="dc.mp4" type="video/mp4">
+            </video>
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full pt-20">
+            <div class="max-w-4xl animate-fade-in-up">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="h-px w-10 bg-cyan-500"></div>
+                    <span class="text-cyan-400 text-xs font-bold uppercase tracking-[0.2em]">Infrastructure</span>
+                </div>
+                
+                <h1 class="font-display text-5xl md:text-7xl font-bold text-white tracking-tight leading-none mb-6">
+                    Fiber <br />
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Connectivity</span>
+                </h1>
+                
+                <p class="text-xl text-slate-300 font-light leading-relaxed max-w-2xl pl-1">
+                    Customized fiber network design and deployment services tailored to your specific business requirements, from single-mode backbones to complex FTTP architectures.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 bg-slate-50 relative">
+        <div class="absolute inset-0 pointer-events-none" 
+             style="background-image: linear-gradient(#cbd5e1 1px, transparent 1px), linear-gradient(90deg, #cbd5e1 1px, transparent 1px); background-size: 40px 40px; opacity: 0.7;">
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            
+            <div class="flex justify-between items-end mb-16">
+                <div>
+                    <h2 class="font-display text-3xl md:text-4xl font-bold text-slate-900 mb-2">Network Lifecycle</h2>
+                    <p class="text-slate-500">End-to-end fiber solutions from assessment to implementation.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-10">
+                
+                <div class="card-container group" onclick="flipCard(this)">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="card-image-wrap">
+                                <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Site Survey">
+                                <div class="card-image-overlay"></div>
+                            </div>
+                            <div class="card-front-content">
+                                <div class="card-bar"></div>
+                                <div class="text-cyan-400 text-[10px] font-bold uppercase tracking-widest mb-2">Phase 01</div>
+                                <h3 class="font-display text-2xl font-bold text-white mb-2">Site Survey</h3>
+                                <p class="text-slate-400 text-sm leading-relaxed">Comprehensive physical infrastructure assessment.</p>
+                                <span class="mt-auto text-xs font-bold text-white uppercase tracking-widest flex items-center gap-2 group-hover:text-cyan-400 transition-colors">
+                                    Tap to Reveal <i class="fa-solid fa-plus"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-back">
+                            <div class="card-icon-back"><i class="fa-solid fa-map-location-dot"></i></div>
+                            <h3 class="font-display text-xl font-bold text-white mb-4">Site Assessment</h3>
+                            <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                                Detailed evaluation of physical premises to identify optimal cable routes, potential obstructions, and installation requirements tailored to your facility's unique layout.
+                            </p>
+                            <a href="#" class="mt-auto inline-flex items-center justify-center px-6 py-3 border border-white/20 text-xs font-bold uppercase tracking-widest rounded-sm text-white hover:bg-white hover:text-slate-900 transition-all w-full">
+                                Learn More
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-container group" onclick="flipCard(this)">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="card-image-wrap">
+                                <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Planning">
+                                <div class="card-image-overlay"></div>
+                            </div>
+                            <div class="card-front-content">
+                                <div class="card-bar"></div>
+                                <div class="text-cyan-400 text-[10px] font-bold uppercase tracking-widest mb-2">Phase 02</div>
+                                <h3 class="font-display text-2xl font-bold text-white mb-2">Planning</h3>
+                                <p class="text-slate-400 text-sm leading-relaxed">Strategic roadmap for scalable deployment.</p>
+                                <span class="mt-auto text-xs font-bold text-white uppercase tracking-widest flex items-center gap-2 group-hover:text-cyan-400 transition-colors">
+                                    Tap to Reveal <i class="fa-solid fa-plus"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-back">
+                            <div class="card-icon-back"><i class="fa-solid fa-chess-board"></i></div>
+                            <h3 class="font-display text-xl font-bold text-white mb-4">Network Planning</h3>
+                            <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                                Development of a comprehensive deployment strategy that accounts for bandwidth requirements, future scalability, redundancy needs, and minimal business disruption.
+                            </p>
+                            <a href="#" class="mt-auto inline-flex items-center justify-center px-6 py-3 border border-white/20 text-xs font-bold uppercase tracking-widest rounded-sm text-white hover:bg-white hover:text-slate-900 transition-all w-full">
+                                Learn More
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-container group" onclick="flipCard(this)">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="card-image-wrap">
+                                <img src="https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Fibre Survey">
+                                <div class="card-image-overlay"></div>
+                            </div>
+                            <div class="card-front-content">
+                                <div class="card-bar"></div>
+                                <div class="text-cyan-400 text-[10px] font-bold uppercase tracking-widest mb-2">Phase 03</div>
+                                <h3 class="font-display text-2xl font-bold text-white mb-2">Fibre Survey</h3>
+                                <p class="text-slate-400 text-sm leading-relaxed">Auditing existing optical infrastructure.</p>
+                                <span class="mt-auto text-xs font-bold text-white uppercase tracking-widest flex items-center gap-2 group-hover:text-cyan-400 transition-colors">
+                                    Tap to Reveal <i class="fa-solid fa-plus"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-back">
+                            <div class="card-icon-back"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+                            <h3 class="font-display text-xl font-bold text-white mb-4">Fiber Audits</h3>
+                            <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                                Testing and validating existing fiber plant (SMF/MMF) to ensure integrity, detect losses, and verify capability to support new high-speed applications.
+                            </p>
+                            <a href="#" class="mt-auto inline-flex items-center justify-center px-6 py-3 border border-white/20 text-xs font-bold uppercase tracking-widest rounded-sm text-white hover:bg-white hover:text-slate-900 transition-all w-full">
+                                Learn More
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-container group" onclick="flipCard(this)">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="card-image-wrap">
+                                <img src="fiber_design.jpg" alt="Fiber Design">
+                                <div class="card-image-overlay"></div>
+                            </div>
+                            <div class="card-front-content">
+                                <div class="card-bar"></div>
+                                <div class="text-cyan-400 text-[10px] font-bold uppercase tracking-widest mb-2">Phase 04</div>
+                                <h3 class="font-display text-2xl font-bold text-white mb-2">Fiber Design</h3>
+                                <p class="text-slate-400 text-sm leading-relaxed">Custom architecture for high-speed data.</p>
+                                <span class="mt-auto text-xs font-bold text-white uppercase tracking-widest flex items-center gap-2 group-hover:text-cyan-400 transition-colors">
+                                    Tap to Reveal <i class="fa-solid fa-plus"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-back">
+                            <div class="card-icon-back"><i class="fa-solid fa-compass-drafting"></i></div>
+                            <h3 class="font-display text-xl font-bold text-white mb-4">Network Design</h3>
+                            <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                                Engineering robust fiber optic networks (FTTP, In-building, Data Center) with appropriate cabling, transceivers, and converters to maximize throughput.
+                            </p>
+                            <a href="#" class="mt-auto inline-flex items-center justify-center px-6 py-3 border border-white/20 text-xs font-bold uppercase tracking-widest rounded-sm text-white hover:bg-white hover:text-slate-900 transition-all w-full">
+                                Learn More
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-slate-950 text-white pt-24 pb-12 border-t border-slate-800 relative z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+                <div class="col-span-1 md:col-span-1">
+                    <a href="index.html" class="flex items-center gap-2 mb-6">
+                        <div class="w-8 h-8 rounded bg-cyan-600 flex items-center justify-center font-bold text-lg">A</div>
+                        <span class="font-display font-bold text-xl">austin1.ai</span>
+                    </a>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                        Orchestrating the AI-Native Future for the modern enterprise.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-slate-400 hover:text-white transition-colors"><i class="fa-brands fa-linkedin text-xl"></i></a>
+                        <a href="#" class="text-slate-400 hover:text-white transition-colors"><i class="fa-brands fa-twitter text-xl"></i></a>
+                        <a href="#" class="text-slate-400 hover:text-white transition-colors"><i class="fa-brands fa-github text-xl"></i></a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold uppercase tracking-widest mb-6 text-slate-500">Solutions</h4>
+                    <ul class="space-y-4 text-sm font-medium">
+                        <li><a href="telecom-services.html" class="hover:text-cyan-400 transition-colors">Infra for AI</a></li>
+                        <li><a href="it-services.html" class="hover:text-cyan-400 transition-colors">Digital for AI</a></li>
+                        <li><a href="team-enablement.html" class="hover:text-cyan-400 transition-colors">People for AI</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold uppercase tracking-widest mb-6 text-slate-500">Company</h4>
+                    <ul class="space-y-4 text-sm font-medium">
+                        <li><a href="about.html" class="hover:text-cyan-400 transition-colors">About Us</a></li>
+                        <li><a href="#" class="hover:text-cyan-400 transition-colors">Careers</a></li>
+                        <li><a href="#" class="hover:text-cyan-400 transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold uppercase tracking-widest mb-6 text-slate-500">Stay Connected</h4>
+                    <form class="flex flex-col gap-4">
+                        <input type="email" placeholder="Email Address" class="bg-slate-800 border border-slate-700 text-white px-4 py-3 focus:outline-none focus:border-cyan-500 transition-colors">
+                        <button class="bg-white text-slate-900 px-4 py-3 font-bold uppercase tracking-widest hover:bg-cyan-500 hover:text-white transition-colors">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            <div class="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+                <p>&copy; 2025 Austin1.ai Inc. All rights reserved.</p>
+                <div class="flex space-x-8">
+                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms of Use</a>
+                    <a href="#" class="hover:text-white transition-colors">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- Flip Card Functionality ---
+        function flipCard(cardContainer) {
+            document.querySelectorAll('.card-container.flipped').forEach(flippedCard => {
+                if (flippedCard !== cardContainer) {
+                    flippedCard.classList.remove('flipped');
+                }
+            });
+            cardContainer.classList.toggle('flipped');
+        }
+        
+        const btn = document.getElementById('mobile-menu-btn');
+    </script>
+    <script src="chatbot.js"></script>
+</body>
+</html>
